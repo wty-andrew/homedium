@@ -1,0 +1,5 @@
+app.home.lab {
+	tls /root/certs/cert.pem /root/certs/key.pem
+
+	reverse_proxy {$LOAD_BALANCER_IP}
+}
