@@ -1,5 +1,27 @@
-app.home.lab {
+(tls) {
 	tls /root/certs/cert.pem /root/certs/key.pem
+}
+
+app.home.lab {
+	import tls
 
 	reverse_proxy {$LOAD_BALANCER_IP}
+}
+
+*.app.home.lab:80 {
+	redir https://{host}{uri} permanent
+}
+
+*.app.home.lab:443 {
+	import tls
+
+	@frontend host frontend.app.home.lab
+	handle @frontend {
+		reverse_proxy frontend
+	}
+
+	@gitea host gitea.app.home.lab
+	handle @gitea {
+		reverse_proxy gitea:3000
+	}
 }

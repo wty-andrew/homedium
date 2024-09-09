@@ -1,2 +1,7 @@
 include:
   - ./docker/caddy/compose.yaml
+  - ./docker/gitea/compose.yaml
+
+services:
+  frontend:
+    build: ./src/frontend

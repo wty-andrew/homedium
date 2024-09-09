@@ -8,5 +8,5 @@ resources:
 - gateway.yaml
 images:
 - name: frontend-image
-  newName: nginxdemos/hello
-  newTag: "0.4"
+  newName: gitea.app.home.lab/homedium/frontend
+  newTag: "0.0.0"
