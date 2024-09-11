@@ -1,0 +1,31 @@
+issuer: https://dex.app.home.lab
+
+storage:
+  type: sqlite3
+  config:
+    file: /var/dex/dex.db
+
+web:
+  http: 0.0.0.0:5556
+
+connectors:
+- type: gitea
+  id: gitea
+  name: Gitea
+  config:
+    clientID: {{ .Env.DEX_GITEA_CLIENT_ID }}
+    clientSecret: {{ .Env.DEX_GITEA_CLIENT_SECRET }}
+    redirectURI: https://dex.app.home.lab/callback
+    baseURL: https://gitea.app.home.lab
+
+staticClients:
+- id: homedium
+  name: 'Homedium'
+  redirectURIs:
+  - https://frontend.app.home.lab/signin/callback
+  - https://localhost:3000/signin/callback
+  # visit https://oidcdebugger.com/ and fill authorize uri (https://dex.app.home.lab/auth) and client id (web-app)
+  # - https://oidcdebugger.com/debug
+  # start official example with: ./bin/example-app --issuer https://dex.app.home.lab --client-id web-app --client-secret <secret>
+  # - http://127.0.0.1:5555/callback
+  secret: {{ .Env.DEX_STATIC_CLIENT_SECRET }}

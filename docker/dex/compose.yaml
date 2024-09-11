@@ -1,0 +1,11 @@
+services:
+  dex:
+    image: dexidp/dex:v2.41.1
+    command: ["dex", "serve", "/etc/dex/config.yaml"]
+    volumes:
+      - ../../certs/cert.pem:/etc/ssl/certs/cert.pem
+      - ./config.yaml:/etc/dex/config.yaml
+    environment:
+      DEX_GITEA_CLIENT_ID: ${DEX_GITEA_CLIENT_ID:?}
+      DEX_GITEA_CLIENT_SECRET: ${DEX_GITEA_CLIENT_SECRET:?}
+      DEX_STATIC_CLIENT_SECRET: ${DEX_STATIC_CLIENT_SECRET:?}

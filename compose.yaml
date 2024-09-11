@@ -1,5 +1,6 @@
 include:
   - ./docker/caddy/compose.yaml
+  - ./docker/dex/compose.yaml
   - ./docker/gitea/compose.yaml
 
 services:

@@ -15,6 +15,11 @@ app.home.lab {
 *.app.home.lab:443 {
 	import tls
 
+	@dex host dex.app.home.lab
+	handle @dex {
+		reverse_proxy dex:5556
+	}
+
 	@frontend host frontend.app.home.lab
 	handle @frontend {
 		reverse_proxy frontend
