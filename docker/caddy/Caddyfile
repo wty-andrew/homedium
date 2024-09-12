@@ -42,4 +42,9 @@ app.home.lab {
 			reverse_proxy minio:9000
 		}
 	}
+
+	@pgadmin host pgadmin.app.home.lab
+	handle @pgadmin {
+		reverse_proxy pgadmin
+	}
 }
