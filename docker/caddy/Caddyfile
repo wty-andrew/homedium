@@ -29,4 +29,17 @@ app.home.lab {
 	handle @gitea {
 		reverse_proxy gitea:3000
 	}
+
+	@minio host minio.app.home.lab
+	handle @minio {
+		redir /console /console/
+
+		handle_path /console/* {
+			reverse_proxy minio:9001
+		}
+
+		handle {
+			reverse_proxy minio:9000
+		}
+	}
 }

@@ -2,6 +2,7 @@ include:
   - ./docker/caddy/compose.yaml
   - ./docker/dex/compose.yaml
   - ./docker/gitea/compose.yaml
+  - ./docker/minio/compose.yaml
 
 services:
   frontend:
