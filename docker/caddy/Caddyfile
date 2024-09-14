@@ -47,4 +47,9 @@ app.home.lab {
 	handle @pgadmin {
 		reverse_proxy pgadmin
 	}
+
+	@redis host redis.app.home.lab
+	handle @redis {
+		reverse_proxy redis:8001
+	}
 }
