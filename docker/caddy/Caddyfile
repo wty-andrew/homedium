@@ -43,6 +43,11 @@ app.home.lab {
 		}
 	}
 
+	@mongo host mongo.app.home.lab
+	handle @mongo {
+		reverse_proxy mongo-express:8081
+	}
+
 	@pgadmin host pgadmin.app.home.lab
 	handle @pgadmin {
 		reverse_proxy pgadmin
