@@ -1,7 +1,7 @@
 apiVersion: source.toolkit.fluxcd.io/v1
 kind: GitRepository
 metadata:
-  name: minio
+  name: minio-operator
   namespace: flux-system
 spec:
   interval: 24h
@@ -20,4 +20,10 @@ spec:
   prune: true
   sourceRef:
     kind: GitRepository
-    name: minio
+    name: minio-operator
+    namespace: flux-system
+  healthChecks:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: minio-operator
+    namespace: minio-operator
