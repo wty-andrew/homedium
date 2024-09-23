@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- namespace.yaml
+- repository.yaml
+- release.yaml
+
+secretGenerator:
+- name: cert
+  namespace: dex
+  files:
+  - cert.pem=cert.enc.pem
+- name: dex-secrets
+  namespace: dex
+  envs:
+  - .enc.env
+
+configurations:
+- kustomizeconfig.yaml
+
+patches:
+- target:
+    kind: HelmRelease
+    name: dex
+    namespace: dex
+  patch: |-
+    - op: add
+      path: /spec/values/envFrom
+      value:
+      - secretRef:
+          name: dex-secrets
+    - op: add
+      path: /spec/values/volumeMounts
+      value:
+      - name: ssl-cert
+        mountPath: /etc/ssl/certs/certificates.crt
+        subPath: cert.pem
+        readOnly: true
+    - op: add
+      path: /spec/values/volumes
+      value:
+      - name: ssl-cert
+        secret:
+          secretName: cert
