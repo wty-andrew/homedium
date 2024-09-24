@@ -1,6 +1,7 @@
 include:
   - ./docker/caddy/compose.yaml
   - ./docker/dex/compose.yaml
+  - ./docker/emqx/compose.yaml
   - ./docker/gitea/compose.yaml
   - ./docker/minio/compose.yaml
   - ./docker/mongo/compose.yaml

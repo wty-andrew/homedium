@@ -20,6 +20,11 @@ app.home.lab {
 		reverse_proxy dex:5556
 	}
 
+	@emqx host emqx.app.home.lab
+	handle @emqx {
+		reverse_proxy emqx:18083
+	}
+
 	@frontend host frontend.app.home.lab
 	handle @frontend {
 		reverse_proxy frontend
