@@ -6,3 +6,4 @@ resources:
 - dex
 - kong-ingress
 - minio
+- redis
