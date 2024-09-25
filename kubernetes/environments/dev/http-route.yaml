@@ -30,6 +30,39 @@ spec:
   - group: ""
     kind: Service
 ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: openobserve-route
+spec:
+  parentRefs:
+  - kind: Gateway
+    name: gateway
+  rules:
+  - backendRefs:
+    - name: openobserve-router
+      namespace: openobserve
+      port: 5080
+    matches:
+    - path:
+        type: PathPrefix
+        value: /openobserve
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: openobserve
+  namespace: openobserve
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    namespace: dev
+  to:
+  - group: ""
+    kind: Service
+
+---
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: HTTPRoute
 metadata:
