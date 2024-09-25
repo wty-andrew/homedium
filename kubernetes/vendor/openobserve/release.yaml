@@ -1,0 +1,49 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openobserve
+  namespace: openobserve
+spec:
+  dependsOn:
+  - name: cnpg-operator
+    namespace: cnpg-system
+  interval: 24h
+  chart:
+    spec:
+      chart: openobserve
+      version: "v0.12.1"
+      sourceRef:
+        kind: HelmRepository
+        name: openobserve
+        namespace: flux-system
+  values:
+    config:
+      ZO_BASE_URI: /openobserve
+    postgres:
+      pgadmin:
+        enabled: false
+  postRenderers:
+  - kustomize:
+      patches:
+      - target:
+          version: v1
+          kind: Deployment
+          name: openobserve-router
+        patch: |-
+          - op: replace
+            path: /spec/template/spec/containers/0/livenessProbe/httpGet/path
+            value: /openobserve/healthz
+          - op: replace
+            path: /spec/template/spec/containers/0/readinessProbe/httpGet/path
+            value: /openobserve/healthz
+      - target:
+          version: v1
+          kind: StatefulSet
+          name: openobserve-querier
+        patch: |-
+          - op: replace
+            path: /spec/template/spec/containers/0/livenessProbe/httpGet/path
+            value: /openobserve/healthz
+          - op: replace
+            path: /spec/template/spec/containers/0/readinessProbe/httpGet/path
+            value: /openobserve/healthz
