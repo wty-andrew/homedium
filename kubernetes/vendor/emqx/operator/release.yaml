@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: emqx-operator
+  namespace: emqx-operator-system
+spec:
+  interval: 24h
+  chart:
+    spec:
+      chart: emqx-operator
+      version: "2.2.x"
+      sourceRef:
+        kind: HelmRepository
+        name: emqx
+        namespace: flux-system
