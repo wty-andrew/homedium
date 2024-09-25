@@ -73,5 +73,12 @@ spec:
     name: gateway
   rules:
   - backendRefs:
+    - name: backend
+      port: 80
+    matches:
+    - path:
+        type: PathPrefix
+        value: /api
+  - backendRefs:
     - name: frontend
       port: 80

@@ -19,3 +19,28 @@ images:
 - name: frontend-image
   newName: gitea.app.home.lab/homedium/frontend
   newTag: "0.0.0"
+- name: backend-image
+  newName: gitea.app.home.lab/homedium/backend
+  newTag: "0.0.0"
+
+configMapGenerator:
+- name: otlp-exporter-config
+  literals:
+  - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+  - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.open-telemetry:4317
+
+patches:
+- target:
+    kind: Deployment
+    name: backend
+  patch: |-
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: OTEL_SERVICE_NAME
+        value: backend
+    - op: add
+      path: /spec/template/spec/containers/0/envFrom
+      value:
+      - configMapRef:
+          name: otlp-exporter-config
