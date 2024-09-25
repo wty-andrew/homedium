@@ -53,6 +53,11 @@ app.home.lab {
 		reverse_proxy mongo-express:8081
 	}
 
+	@openobserve host openobserve.app.home.lab
+	handle @openobserve {
+		reverse_proxy openobserve:5080
+	}
+
 	@pgadmin host pgadmin.app.home.lab
 	handle @pgadmin {
 		reverse_proxy pgadmin

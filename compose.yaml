@@ -5,6 +5,7 @@ include:
   - ./docker/gitea/compose.yaml
   - ./docker/minio/compose.yaml
   - ./docker/mongo/compose.yaml
+  - ./docker/openobserve/compose.yaml
   - ./docker/postgres/compose.yaml
   - ./docker/redis/compose.yaml
 
