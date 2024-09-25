@@ -6,6 +6,7 @@ include:
   - ./docker/minio/compose.yaml
   - ./docker/mongo/compose.yaml
   - ./docker/openobserve/compose.yaml
+  - ./docker/otel-collector/compose.yaml
   - ./docker/postgres/compose.yaml
   - ./docker/redis/compose.yaml
 
