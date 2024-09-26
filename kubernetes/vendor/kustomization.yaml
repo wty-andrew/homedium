@@ -7,4 +7,5 @@ resources:
 - kong-ingress
 - minio
 - openobserve
+- otel-collector
 - redis

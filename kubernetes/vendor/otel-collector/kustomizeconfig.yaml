@@ -1,0 +1,6 @@
+nameReference:
+- kind: Secret
+  version: v1
+  fieldSpecs:
+  - path: spec/values/extraEnvs/valueFrom/secretKeyRef/name
+    kind: HelmRelease
