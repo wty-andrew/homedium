@@ -29,6 +29,11 @@ configMapGenerator:
   - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
   - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.open-telemetry:4317
 
+secretGenerator:
+- name: backend-secrets
+  envs:
+  - backend.enc.env
+
 patches:
 - target:
     kind: Deployment
@@ -44,3 +49,5 @@ patches:
       value:
       - configMapRef:
           name: otlp-exporter-config
+      - secretRef:
+          name: backend-secrets
