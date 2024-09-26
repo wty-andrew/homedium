@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
 import pinoHttp from 'pino-http'
@@ -6,6 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { isDev } from './config.mjs'
 import logger from './logger.mjs'
 import { errorHandler } from './middlewares/error-handler.mjs'
+import session from './middlewares/session.mjs'
 import router from './routes/index.mjs'
 
 const app = express()
@@ -26,7 +28,9 @@ const httpLogger = pinoHttp({
 })
 
 app.use(httpLogger)
+app.use(cookieParser())
 app.use(express.json())
+app.use(session())
 
 router(app)
 

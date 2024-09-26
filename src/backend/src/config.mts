@@ -11,6 +11,13 @@ const env = (name: string, default_?: string): string => {
   return value
 }
 
+// Development
 export const PORT = Number(env('PORT', '8000'))
+
+// Opentelemetry
 export const SERVICE_NAME = env('OTEL_SERVICE_NAME', 'unknown_service')
 export const SERVICE_VERSION = env('OTEL_SERVICE_VERSION', '0.1.0')
+
+// Session
+export const REDIS_URI = env('REDIS_URI')
+export const SESSION_SECRET = env('SESSION_SECRET')
