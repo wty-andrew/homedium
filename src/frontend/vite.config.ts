@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 
+import fs from 'node:fs'
 import path from 'node:path'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
@@ -10,6 +11,22 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+    },
+  },
+  server: {
+		https:
+			process.env.NODE_ENV === 'development'
+				? {
+						cert: fs.readFileSync('../../certs/cert.pem'),
+						key: fs.readFileSync('../../certs/key.pem'),
+					}
+				: {},
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        xfwd: true,
+      },
     },
   },
   test: {
