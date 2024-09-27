@@ -1,3 +1,9 @@
-const App = () => <h1 className="text-3xl font-bold underline">Hello World</h1>
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+
+import routes from './routes'
+
+const router = createBrowserRouter(routes)
+
+const App = () => <RouterProvider router={router} />
 
 export default App
