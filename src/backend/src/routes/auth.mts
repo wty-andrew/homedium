@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import passport from 'passport'
+import { StatusCodes } from 'http-status-codes'
 
 import { AUTH_FAILURE_REDIRECT, AUTH_SUCCESS_REDIRECT } from '../config.mjs'
 import logger from '../logger.mjs'
@@ -28,13 +29,13 @@ router.post('/logout', async (req, res, next) => {
         logger.error({ err }, 'Error destroying session')
         return next(err)
       }
-      res.status(204).send()
+      res.status(StatusCodes.NO_CONTENT).clearCookie('connect.sid').send()
     })
   })
 })
 
-router.get('/check', requireAuth, (req, res) => {
-  res.status(200).send({ success: true, data: req.user })
+router.get('/me', requireAuth, (req, res) => {
+  res.status(StatusCodes.OK).send({ user: req.user })
 })
 
 export default router

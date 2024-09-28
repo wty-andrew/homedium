@@ -1,7 +1,20 @@
-import type { ErrorRequestHandler, RequestHandler } from 'express'
+import type { ErrorRequestHandler, RequestHandler, Response } from 'express'
 
-import { ErrorResponse } from '../common/errors.mjs'
 import { isDev } from '../config.mjs'
+import { BadRequestError, HttpError, InternalError } from '../types/index.mjs'
+
+type ErrorResponse = {
+  error: {
+    code: number
+    type: string
+    message: string
+  }
+}
+
+const sendError = (res: Response<ErrorResponse>, error: HttpError) => {
+  const { status, code, type, message } = error
+  res.status(status).json({ error: { code, type, message } })
+}
 
 export const asyncHandler =
   (handler: RequestHandler): RequestHandler =>
@@ -14,16 +27,11 @@ export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   }
   // body-parser error, see: https://github.com/expressjs/body-parser/issues/122
   if (err.type === 'entity.parse.failed') {
-    res.status(400).json({ success: false, message: 'Malformed body' })
-    return
+    return sendError(res, new BadRequestError('Malformed body'))
   }
-  if (err instanceof ErrorResponse) {
-    res.status(err.statusCode).json({ success: false, message: err.message })
-    return
+  if (err instanceof HttpError) {
+    return sendError(res, err)
   }
 
-  res.status(500).json({
-    success: false,
-    message: isDev ? err.message : 'Unexpected condition',
-  })
+  sendError(res, new InternalError(isDev ? err.message : 'Unexpected error'))
 }

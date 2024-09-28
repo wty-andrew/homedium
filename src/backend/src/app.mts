@@ -1,6 +1,7 @@
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
 import express from 'express'
+import { StatusCodes } from 'http-status-codes'
 import passport from 'passport'
 import pinoHttp from 'pino-http'
 import { v4 as uuidv4 } from 'uuid'
@@ -9,8 +10,8 @@ import { ALLOWED_ORIGIN, isDev } from './config.mjs'
 import logger from './logger.mjs'
 import { errorHandler } from './middlewares/error-handler.mjs'
 import session from './middlewares/session.mjs'
-import router from './routes/index.mjs'
 import { configurePassport } from './passport.mjs'
+import router from './routes/index.mjs'
 
 await configurePassport()
 
@@ -41,7 +42,7 @@ app.use(passport.session())
 router(app)
 
 app.get('/healthz', (req, res) => {
-  res.status(200).send()
+  res.status(StatusCodes.OK).send()
 })
 
 app.use(errorHandler)
