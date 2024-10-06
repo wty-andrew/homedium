@@ -4,3 +4,18 @@ resources:
 - namespace.yaml
 - repository.yaml
 - release.yaml
+
+patches:
+- target:
+    kind: HelmRelease
+    name: kong-ingress
+    namespace: kong
+  # need to forward "x-forwarded-proto" header for secure cookie
+  # see: https://docs.konghq.com/gateway/latest/reference/configuration/#trusted_ips
+  patch: |-
+    - op: add
+      path: /spec/values
+      value:
+        gateway:
+          env:
+            trusted_ips: 0.0.0.0/0,::/0
