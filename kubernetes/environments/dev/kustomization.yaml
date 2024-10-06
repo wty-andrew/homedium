@@ -28,8 +28,18 @@ configMapGenerator:
   literals:
   - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
   - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector-opentelemetry-collector.open-telemetry:4317
+- name: backend-config
+  literals:
+  - OIDC_BASE_URL=https://app.home.lab/dex
+  - OIDC_CLIENT_ID=homedium
+  - OIDC_REDIRECT_URI=https://app.home.lab/signin/callback
+  - AUTH_FAILURE_REDIRECT=https://app.home.lab
+  - AUTH_SUCCESS_REDIRECT=https://app.home.lab
 
 secretGenerator:
+- name: ca-cert
+  files:
+  - ca.pem=ca.enc.pem
 - name: backend-secrets
   envs:
   - backend.enc.env
@@ -40,6 +50,23 @@ patches:
     name: backend
   patch: |-
     - op: add
+      path: /spec/template/spec/containers/0/volumeMounts
+      value:
+      - name: ca-cert
+        mountPath: /etc/ssl/certs/ca.pem
+        subPath: ca.pem
+    - op: add
+      path: /spec/template/spec/volumes
+      value:
+      - name: ca-cert
+        secret:
+          secretName: ca-cert
+    - op: add
+      path: /spec/template/spec/containers/0/env/-
+      value:
+        name: NODE_EXTRA_CA_CERTS
+        value: /etc/ssl/certs/ca.pem
+    - op: add
       path: /spec/template/spec/containers/0/env/-
       value:
         name: OTEL_SERVICE_NAME
@@ -49,5 +76,7 @@ patches:
       value:
       - configMapRef:
           name: otlp-exporter-config
+      - configMapRef:
+          name: backend-config
       - secretRef:
           name: backend-secrets
