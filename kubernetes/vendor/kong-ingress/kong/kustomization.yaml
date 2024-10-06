@@ -4,3 +4,17 @@ resources:
 - namespace.yaml
 - repository.yaml
 - release.yaml
+
+patches:
+- target:
+    kind: HelmRelease
+    name: kong-ingress
+    namespace: kong
+  # TODO: make kong passthrough x-forwarded-proto in order to use secure cookie
+  patch: |-
+    - op: add
+      path: /spec/values
+      value:
+        gateway:
+          env:
+            trusted_ips: 192.168.0.0/16
