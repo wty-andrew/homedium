@@ -6,6 +6,7 @@ resources:
 - dex
 - kong-ingress
 - minio
+- mongodb
 - openobserve
 - otel-collector
 - redis
