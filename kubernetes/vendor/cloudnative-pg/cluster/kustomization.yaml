@@ -3,3 +3,34 @@ kind: Kustomization
 resources:
 - namespace.yaml
 - release.yaml
+
+secretGenerator:
+- name: cnpg-basic-auth
+  namespace: cnpg-database
+  envs:
+  - .enc.env
+
+configurations:
+- kustomizeconfig.yaml
+
+patches:
+- target:
+    kind: Secret
+    name: cnpg-basic-auth
+    namespace: cnpg-database
+  patch: |-
+    - op: replace
+      path: /type
+      value: kubernetes.io/basic-auth
+- target:
+    kind: HelmRelease
+    name: cnpg-cluster
+    namespace: cnpg-database
+  patch: |-
+    - op: add
+      path: /spec/values
+      value:
+        cluster:
+          initdb:
+            secret:
+              name: cnpg-basic-auth
