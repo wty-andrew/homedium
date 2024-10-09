@@ -5,6 +5,7 @@ resources:
 - cert-manager
 - cloudnative-pg
 - dex
+- emqx
 - kong-ingress
 - minio
 - mongodb
