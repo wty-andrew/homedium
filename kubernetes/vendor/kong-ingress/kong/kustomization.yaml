@@ -14,8 +14,7 @@ patches:
   # see: https://docs.konghq.com/gateway/latest/reference/configuration/#trusted_ips
   patch: |-
     - op: add
-      path: /spec/values
+      path: /spec/values/gateway
       value:
-        gateway:
-          env:
-            trusted_ips: 0.0.0.0/0,::/0
+        env:
+          trusted_ips: 0.0.0.0/0,::/0

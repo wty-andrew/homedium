@@ -1,0 +1,27 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: mqtt-route
+spec:
+  parentRefs:
+  - name: gateway
+    sectionName: mqtt
+  rules:
+  - backendRefs:
+    - name: emqx-listeners
+      namespace: emqx
+      port: 1883
+---
+apiVersion: gateway.networking.k8s.io/v1beta1
+kind: ReferenceGrant
+metadata:
+  name: emqx
+  namespace: emqx
+spec:
+  from:
+  - group: gateway.networking.k8s.io
+    kind: TCPRoute
+    namespace: dev
+  to:
+  - group: ""
+    kind: Service

@@ -4,6 +4,7 @@ resources:
 - namespace.yaml
 - ../../apps
 - http-route.yaml
+- tcp-route.yaml
 - gateway.yaml
 
 transformers:

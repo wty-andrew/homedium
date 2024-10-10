@@ -13,3 +13,61 @@ spec:
         kind: HelmRepository
         name: kong
         namespace: flux-system
+  values:
+    # TODO: this block doesn't seem to work as described in the docs, had to patch manually
+    # https://docs.konghq.com/kubernetes-ingress-controller/latest/concepts/gateway-api/
+    proxy:
+      stream:
+      - containerPort: 1883
+        servicePort: 1883
+        protocol: TCP
+  postRenderers:
+  - kustomize:
+      patches:
+      - target:
+          version: v1
+          kind: Deployment
+          name: kong-ingress-controller
+        patch: |-
+          - op: add
+            path: /spec/template/spec/containers/0/env/-
+            value:
+              name: CONTROLLER_FEATURE_GATES
+              value: GatewayAlpha=true
+      - target:
+          version: v1
+          kind: Deployment
+          name: kong-ingress-gateway
+        patch: |-
+          - op: add
+            path: /spec/template/spec/containers/0/ports/-
+            value:
+              name: tcp-1883
+              containerPort: 1883
+              protocol: TCP
+      - patch: |-
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: kong-ingress-gateway
+            namespace: kong
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: proxy
+                    env:
+                      - name: KONG_STREAM_LISTEN
+                        value: "0.0.0.0:1883"
+      - target:
+          version: v1
+          kind: Service
+          name: kong-ingress-gateway-proxy
+        patch: |-
+          - op: add
+            path: /spec/ports/-
+            value:
+              name: tcp-1883
+              port: 1883
+              targetPort: 1883
+              protocol: TCP

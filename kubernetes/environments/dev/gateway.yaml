@@ -20,3 +20,9 @@ spec:
     allowedRoutes:
       namespaces:
         from: All
+  - name: mqtt
+    protocol: TCP
+    port: 1883
+    allowedRoutes:
+      kinds:
+      - kind: TCPRoute
