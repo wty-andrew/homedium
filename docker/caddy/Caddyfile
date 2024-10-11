@@ -1,3 +1,16 @@
+{
+	layer4 {
+		0.0.0.0:8883 {
+			route {
+				tls
+				proxy {
+					upstream {$LOAD_BALANCER_IP}:1883
+				}
+			}
+		}
+	}
+}
+
 (tls) {
 	tls /root/certs/cert.pem /root/certs/key.pem
 }

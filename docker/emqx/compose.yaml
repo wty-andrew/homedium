@@ -3,7 +3,6 @@ services:
     image: emqx/emqx:5.8.0
     ports:
       - "1883:1883"
-      - "8883:8883"
       - "18083:18083"
     volumes:
       - emqx-data:/opt/emqx/data
