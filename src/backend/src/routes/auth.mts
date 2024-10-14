@@ -35,7 +35,7 @@ router.post('/logout', async (req, res, next) => {
 })
 
 router.get('/me', requireAuth, (req, res) => {
-  res.status(StatusCodes.OK).send({ user: req.user })
+  res.status(StatusCodes.OK).json({ user: req.user })
 })
 
 export default router

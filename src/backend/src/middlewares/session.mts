@@ -1,5 +1,7 @@
 import session, { type SessionOptions } from 'express-session'
 
+import { isTest } from '../config.mjs'
+
 const sessionMiddleware = (options: SessionOptions) =>
   session({
     resave: false,
@@ -7,7 +9,7 @@ const sessionMiddleware = (options: SessionOptions) =>
     rolling: true,
     proxy: true,
     cookie: {
-      secure: true,
+      secure: !isTest,
       httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24, // 1 day
       sameSite: 'lax',
