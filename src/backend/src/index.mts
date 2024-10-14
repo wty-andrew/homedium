@@ -1,10 +1,11 @@
-import app from './app.mjs'
-import { PORT } from './config.mjs'
+import { createApp } from './app.mjs'
+import config from './config.mjs'
 import logger from './logger.mjs'
 
-const main = () => {
-  const server = app.listen(PORT, () => {
-    logger.info(`Server running on port ${PORT}`)
+const main = async () => {
+  const app = await createApp(config)
+  const server = app.listen(config.PORT, () => {
+    logger.info(`Server running on port ${config.PORT}`)
   })
 
   const signals: NodeJS.Signals[] = ['SIGTERM', 'SIGINT']

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import passport from 'passport'
 import { StatusCodes } from 'http-status-codes'
 
-import { AUTH_FAILURE_REDIRECT, AUTH_SUCCESS_REDIRECT } from '../config.mjs'
+import config from '../config.mjs'
 import logger from '../logger.mjs'
 import { requireAuth } from '../middlewares/auth.mjs'
 
@@ -13,8 +13,8 @@ router.get('/oidc', passport.authenticate('oidc'))
 router.get(
   '/oidc/callback',
   passport.authenticate('oidc', {
-    successRedirect: AUTH_SUCCESS_REDIRECT,
-    failureRedirect: AUTH_FAILURE_REDIRECT,
+    successRedirect: config.AUTH_SUCCESS_REDIRECT,
+    failureRedirect: config.AUTH_FAILURE_REDIRECT,
   })
 )
 

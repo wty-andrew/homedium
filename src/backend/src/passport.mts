@@ -7,12 +7,7 @@ import {
 } from 'openid-client'
 import passport from 'passport'
 
-import {
-  OIDC_BASE_URL,
-  OIDC_CLIENT_ID,
-  OIDC_CLIENT_SECRET,
-  OIDC_REDIRECT_URI,
-} from './config.mjs'
+import type { Config } from './config.mjs'
 import type { User } from './types/index.mjs'
 
 interface OidcOptions extends ClientMetadata {
@@ -45,11 +40,19 @@ const configureOidcStrategy = async (options: OidcOptions) => {
   })
 }
 
-export const configurePassport = async () => {
+type OidcConfig = Pick<
+  Config,
+  | 'OIDC_BASE_URL'
+  | 'OIDC_CLIENT_ID'
+  | 'OIDC_CLIENT_SECRET'
+  | 'OIDC_REDIRECT_URI'
+>
+
+export const configurePassport = async (config: OidcConfig) => {
   await configureOidcStrategy({
-    issuer_url: OIDC_BASE_URL,
-    client_id: OIDC_CLIENT_ID,
-    client_secret: OIDC_CLIENT_SECRET,
-    redirect_uris: [OIDC_REDIRECT_URI],
+    issuer_url: config.OIDC_BASE_URL,
+    client_id: config.OIDC_CLIENT_ID,
+    client_secret: config.OIDC_CLIENT_SECRET,
+    redirect_uris: [config.OIDC_REDIRECT_URI],
   })
 }

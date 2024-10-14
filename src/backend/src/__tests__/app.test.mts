@@ -1,6 +1,9 @@
 import request from 'supertest'
 
-import app from '../app.mjs'
+import { createApp } from '../app.mjs'
+import config from '../config.mjs'
+
+const app = await createApp(config)
 
 describe('GET /healthz', () => {
   it('returns status 200', async () => {
