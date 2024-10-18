@@ -7,7 +7,6 @@ resources:
 - dex
 - emqx
 - kong-ingress
-- minio
 - mongodb
 - openobserve
 - otel-collector
