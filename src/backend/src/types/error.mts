@@ -22,40 +22,43 @@ export class HttpError extends BaseError {
 
 export class BadRequestError extends HttpError {
   constructor(message: string) {
-    super(StatusCodes.BAD_REQUEST, Code.INTERNAL, message)
+    super(StatusCodes.BAD_REQUEST, Code.BAD_REQUEST, message)
   }
 }
 
 export class AuthenticationError extends HttpError {
   constructor(message: string) {
-    super(StatusCodes.UNAUTHORIZED, Code.UNAUTHORIZED, message)
+    super(StatusCodes.UNAUTHORIZED, Code.AUTH_ERROR, message)
   }
 }
 
 export class InternalError extends HttpError {
   constructor(message: string) {
-    super(StatusCodes.INTERNAL_SERVER_ERROR, Code.INTERNAL, message)
+    super(StatusCodes.INTERNAL_SERVER_ERROR, Code.INTERNAL_ERROR, message)
   }
 }
 
 export enum Code {
-  // shared with the frontend
   UNSPECIFIED = -1,
   OK = 0,
-
   UNKNOWN = 100,
-  NETWORK_ERROR = 200,
 
-  // server-side only
-  UNAUTHORIZED = 300,
-  INTERNAL = 400,
+  // share common http status codes
+  BAD_REQUEST = 400,
+  AUTH_ERROR = 401,
+  NOT_FOUND = 404,
+  INTERNAL_ERROR = 500,
+
+  NETWORK_ERROR = 600,
 }
 
 const CodeType: { [K in Code]: string } = {
   [Code.UNSPECIFIED]: 'UNSPECIFIED',
   [Code.OK]: 'OK',
   [Code.UNKNOWN]: 'UNKNOWN',
+  [Code.BAD_REQUEST]: 'BAD_REQUEST',
+  [Code.AUTH_ERROR]: 'AUTH_ERROR',
+  [Code.NOT_FOUND]: 'NOT_FOUND',
+  [Code.INTERNAL_ERROR]: 'INTERNAL_ERROR',
   [Code.NETWORK_ERROR]: 'NETWORK_ERROR',
-  [Code.UNAUTHORIZED]: 'UNAUTHORIZED',
-  [Code.INTERNAL]: 'INTERNAL',
 }
