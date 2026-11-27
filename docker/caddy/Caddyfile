@@ -1,0 +1,13 @@
+(tls) {
+	tls /root/certs/cert.pem /root/certs/key.pem
+}
+
+http://*.app.home.arpa {
+	redir https://{host}{uri} permanent
+}
+
+*.app.home.arpa {
+	import tls
+
+	respond 200
+}

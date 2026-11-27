@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://doco.cd/latest/schemas/deploy.schema.json
+name: homedium
+reference: dev
+working_dir: docker
+compose_files: [compose.yaml]
+timeout: 900
