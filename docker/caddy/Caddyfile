@@ -23,6 +23,16 @@ forgejo.app.home.arpa {
 	reverse_proxy forgejo:3000
 }
 
+s3.app.home.arpa {
+	import tls
+	reverse_proxy rustfs:9000
+}
+
+rustfs.app.home.arpa {
+	import tls
+	reverse_proxy rustfs:9001
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }

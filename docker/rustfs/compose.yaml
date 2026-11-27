@@ -1,0 +1,34 @@
+services:
+  rustfs-perms:
+    image: alpine:3.24.4
+    command: ["chown", "-R", "10001:10001", "/fix_path"]
+    user: root
+    restart: "no"
+    volumes:
+      - ${DATA_DIR:?DATA_DIR not set}/rustfs:/fix_path
+
+  rustfs:
+    image: rustfs/rustfs:1.0.7
+    restart: unless-stopped
+    security_opt:
+      - "no-new-privileges:true"
+    environment:
+      TZ: ${TZ:?TZ not set}
+      RUSTFS_ADDRESS: 0.0.0.0:9000
+      RUSTFS_CONSOLE_ADDRESS: 0.0.0.0:9001
+      RUSTFS_CONSOLE_ENABLE: "true"
+      RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: https://rustfs.app.home.arpa
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:?RUSTFS_ACCESS_KEY not set}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:?RUSTFS_SECRET_KEY not set}
+    volumes:
+      - ${DATA_DIR:?DATA_DIR not set}/rustfs/data:/data
+      - ${DATA_DIR:?DATA_DIR not set}/rustfs/logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9000/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    depends_on:
+      rustfs-perms:
+        condition: service_completed_successfully
