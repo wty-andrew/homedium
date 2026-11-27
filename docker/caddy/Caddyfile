@@ -2,6 +2,12 @@
 	tls /root/certs/cert.pem /root/certs/key.pem
 }
 
+ntfy.app.home.arpa {
+	import tls
+	encode zstd gzip
+	reverse_proxy ntfy:2586
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }
@@ -9,5 +15,5 @@ http://*.app.home.arpa {
 *.app.home.arpa {
 	import tls
 
-	respond 200
+	respond "no service at {host}" 404
 }

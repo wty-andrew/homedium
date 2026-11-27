@@ -1,2 +1,3 @@
 include:
   - caddy/compose.yaml
+  - ntfy/compose.yaml
