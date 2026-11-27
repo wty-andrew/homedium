@@ -1,0 +1,107 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: 20m
+    max-file: "10"
+    compress: "true"
+
+x-windmill-env: &windmill-env
+  TZ: ${TZ:?TZ not set}
+  DATABASE_URL: ${WINDMILL_DATABASE_URL:?WINDMILL_DATABASE_URL not set}
+  BASE_URL: https://windmill.app.home.arpa
+
+services:
+  windmill-init-postgres:
+    image: postgres:18.7-alpine
+    restart: "no"
+    entrypoint: ["/bin/sh", "/init/postgres.sh"]
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD not set}
+      WINDMILL_DB_PASSWORD: ${WINDMILL_DB_PASSWORD:?WINDMILL_DB_PASSWORD not set}
+    volumes:
+      - ./init/postgres.sh:/init/postgres.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  windmill:
+    image: ghcr.io/windmill-labs/windmill:1.885.0
+    restart: unless-stopped
+    expose:
+      - 8000
+      - 2525
+    environment:
+      <<: *windmill-env
+      MODE: server
+    volumes:
+      - windmill-worker-logs:/tmp/windmill/logs
+    depends_on:
+      windmill-init-postgres:
+        condition: service_completed_successfully
+    logging: *default-logging
+
+  windmill-worker:
+    image: ghcr.io/windmill-labs/windmill:1.885.0
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+    environment:
+      <<: *windmill-env
+      MODE: worker
+      WORKER_GROUP: default
+    volumes:
+      - windmill-worker-dependency-cache:/tmp/windmill/cache
+      - windmill-worker-logs:/tmp/windmill/logs
+    depends_on:
+      windmill-init-postgres:
+        condition: service_completed_successfully
+    logging: *default-logging
+
+  windmill-worker-native:
+    image: ghcr.io/windmill-labs/windmill:1.885.0
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+    environment:
+      <<: *windmill-env
+      MODE: worker
+      WORKER_GROUP: native
+      NATIVE_MODE: "true"
+      SLEEP_QUEUE: "200"
+    volumes:
+      - windmill-worker-logs:/tmp/windmill/logs
+    depends_on:
+      windmill-init-postgres:
+        condition: service_completed_successfully
+    logging: *default-logging
+
+  windmill-extra:
+    image: ghcr.io/windmill-labs/windmill-extra:1.885.0
+    restart: unless-stopped
+    expose:
+      - 3001 # LSP
+      - 3002 # Multiplayer
+      - 3003 # Debugger
+    environment:
+      ENABLE_LSP: "true"
+      ENABLE_MULTIPLAYER: "false"
+      ENABLE_DEBUGGER: "true"
+      DEBUGGER_PORT: "3003"
+      ENABLE_NSJAIL: "false"
+      REQUIRE_SIGNED_DEBUG_REQUESTS: "true"
+      WINDMILL_BASE_URL: http://windmill:8000
+      DEBUG_ALLOWED_ORIGINS: https://windmill.app.home.arpa
+    volumes:
+      - windmill-lsp-cache:/pyls/.cache
+    logging: *default-logging
+
+volumes:
+  windmill-worker-logs:
+  windmill-worker-dependency-cache:
+  windmill-lsp-cache:

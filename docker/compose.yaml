@@ -4,3 +4,4 @@ include:
   - ntfy/compose.yaml
   - postgres/compose.yaml
   - rustfs/compose.yaml
+  - windmill/compose.yaml

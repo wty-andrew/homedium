@@ -33,6 +33,15 @@ rustfs.app.home.arpa {
 	reverse_proxy rustfs:9001
 }
 
+windmill.app.home.arpa {
+	import tls
+
+	@extra path /ws/* /ws_mp/* /ws_debug/*
+	reverse_proxy @extra windmill-extra:3000
+
+	reverse_proxy windmill:8000
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }
