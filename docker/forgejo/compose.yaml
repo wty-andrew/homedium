@@ -1,0 +1,65 @@
+services:
+  forgejo-init-postgres:
+    image: postgres:18.7-alpine
+    restart: no
+    entrypoint: ["/bin/sh", "/init/postgres.sh"]
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD not set}
+      FORGEJO_DB_PASSWORD: ${FORGEJO_DB_PASSWORD:?FORGEJO_DB_PASSWORD not set}
+    volumes:
+      - ./init/postgres.sh:/init/postgres.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:17.0.2
+    restart: unless-stopped
+    environment:
+      USER_UID: ${HOST_UID:?HOST_UID not set}
+      USER_GID: ${HOST_GID:?HOST_GID not set}
+      GITEA__database__DB_TYPE: postgres
+      GITEA__database__HOST: postgres:5432
+      GITEA__database__NAME: forgejo
+      GITEA__database__USER: forgejo
+      GITEA__database__PASSWD: ${FORGEJO_DB_PASSWORD:?FORGEJO_DB_PASSWORD not set}
+      GITEA__server__DOMAIN: forgejo.app.home.arpa
+      GITEA__server__ROOT_URL: https://forgejo.app.home.arpa/
+      GITEA__server__SSH_DOMAIN: forgejo.app.home.arpa
+      GITEA__server__SSH_PORT: "222"
+      GITEA__actions__DEFAULT_ACTIONS_URL: https://github.com
+    volumes:
+      - ${DATA_DIR:?DATA_DIR not set}/forgejo:/data
+      - /etc/localtime:/etc/localtime:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      forgejo-init-postgres:
+        condition: service_completed_successfully
+
+  forgejo-runner:
+    image: data.forgejo.org/forgejo/runner:13.2.2
+    restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - |
+        until [ -f /data/.runner ]; do sleep 10; done
+        exec forgejo-runner daemon --config /etc/forgejo-runner/config.yml
+    group_add:
+      - ${DOCKER_GID:?DOCKER_GID not set} # getent group docker | cut -d: -f3
+    environment:
+      DOCKER_HOST: unix:///var/run/docker.sock
+    volumes:
+      - ./runner/config.yml:/etc/forgejo-runner/config.yml:ro
+      - ${DATA_DIR:?DATA_DIR not set}/forgejo-runner:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      forgejo:
+        condition: service_healthy

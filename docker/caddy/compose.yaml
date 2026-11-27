@@ -5,6 +5,7 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "222:222" # forgejo
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./certs:/root/certs:ro

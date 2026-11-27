@@ -1,3 +1,13 @@
+{
+	layer4 {
+		:222 {
+			route {
+				proxy forgejo:22
+			}
+		}
+	}
+}
+
 (tls) {
 	tls /root/certs/cert.pem /root/certs/key.pem
 }
@@ -6,6 +16,11 @@ ntfy.app.home.arpa {
 	import tls
 	encode zstd gzip
 	reverse_proxy ntfy:2586
+}
+
+forgejo.app.home.arpa {
+	import tls
+	reverse_proxy forgejo:3000
 }
 
 http://*.app.home.arpa {
