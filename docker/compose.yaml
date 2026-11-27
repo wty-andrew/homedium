@@ -3,5 +3,6 @@ include:
   - forgejo/compose.yaml
   - ntfy/compose.yaml
   - postgres/compose.yaml
+  - rabbitmq/compose.yaml
   - rustfs/compose.yaml
   - windmill/compose.yaml

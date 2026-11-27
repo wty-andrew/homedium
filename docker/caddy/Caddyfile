@@ -42,6 +42,11 @@ windmill.app.home.arpa {
 	reverse_proxy windmill:8000
 }
 
+rabbitmq.app.home.arpa {
+	import tls
+	reverse_proxy rabbitmq:15672
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }

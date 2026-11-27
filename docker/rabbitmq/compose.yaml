@@ -1,0 +1,19 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.4.1-management-alpine
+    hostname: rabbitmq # a hostname change would orphan the existing data
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:?TZ not set}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:?RABBITMQ_USERNAME not set}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD not set}
+    volumes:
+      - ${DATA_DIR:?DATA_DIR not set}/rabbitmq:/var/lib/rabbitmq
+      # Plane's Celery worker (5.5.x) depends on deprecated features
+      - ./deprecated-features.conf:/etc/rabbitmq/conf.d/90-deprecated-features.conf:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
