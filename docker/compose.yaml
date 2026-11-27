@@ -6,3 +6,4 @@ include:
   - rabbitmq/compose.yaml
   - rustfs/compose.yaml
   - windmill/compose.yaml
+  - valkey/compose.yaml
