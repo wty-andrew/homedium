@@ -1,0 +1,85 @@
+services:
+  plane-init-postgres:
+    image: postgres:18.7-alpine
+    restart: "no"
+    entrypoint: ["/bin/sh", "/init/postgres.sh"]
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD not set}
+      PLANE_DB_PASSWORD: ${PLANE_DB_PASSWORD:?PLANE_DB_PASSWORD not set}
+    volumes:
+      - ./init/postgres.sh:/init/postgres.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  plane-init-rabbitmq:
+    image: curlimages/curl:8.23.0
+    restart: "no"
+    entrypoint: ["/bin/sh", "/init/rabbitmq.sh"]
+    environment:
+      RMQ_USERNAME: ${RABBITMQ_USERNAME:?RABBITMQ_USERNAME not set}
+      RMQ_PASSWORD: ${RABBITMQ_PASSWORD:?RABBITMQ_PASSWORD not set}
+      PLANE_RMQ_PASSWORD: ${PLANE_RMQ_PASSWORD:?PLANE_RMQ_PASSWORD not set}
+    volumes:
+      - ./init/rabbitmq.sh:/init/rabbitmq.sh:ro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  plane-init-rustfs:
+    image: rustfs/rc:v0.1.38
+    restart: "no"
+    entrypoint: ["/bin/sh", "/init/rustfs.sh"]
+    environment:
+      RUSTFS_HOST: http://rustfs:9000
+      RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:?RUSTFS_ACCESS_KEY not set}
+      RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:?RUSTFS_SECRET_KEY not set}
+    volumes:
+      - ./init/rustfs.sh:/init/rustfs.sh:ro
+    depends_on:
+      rustfs:
+        condition: service_healthy
+
+  plane-aio:
+    image: makeplane/plane-aio-community:v1.5.1
+    restart: unless-stopped
+    environment:
+      APP_PROTOCOL: https
+      DOMAIN_NAME: plane.app.home.arpa
+      DATABASE_URL: ${PLANE_DATABASE_URL:?PLANE_DATABASE_URL not set}
+      REDIS_URL: ${PLANE_REDIS_URL:?PLANE_REDIS_URL not set}
+      AMQP_URL: ${PLANE_AMQP_URL:? PLANE_AMQP_URL not set}
+      AWS_REGION: ${PLANE_AWS_REGION:?PLANE_AWS_REGION not set}
+      AWS_S3_ENDPOINT_URL: https://s3.app.home.arpa
+      AWS_CA_BUNDLE: /certs/rootCA.pem
+      AWS_S3_BUCKET_NAME: plane
+      AWS_ACCESS_KEY_ID: ${PLANE_AWS_ACCESS_KEY_ID:?PLANE_AWS_ACCESS_KEY_ID not set}
+      AWS_SECRET_ACCESS_KEY: ${PLANE_AWS_SECRET_ACCESS_KEY:?PLANE_AWS_SECRET_ACCESS_KEY not set}
+      SECRET_KEY: ${PLANE_SECRET_KEY:?PLANE_SECRET_KEY not set}
+      LIVE_SERVER_SECRET_KEY: ${PLANE_LIVE_SERVER_SECRET_KEY:?PLANE_LIVE_SERVER_SECRET_KEY not set}
+    volumes:
+      - ./certs/rootCA.pem:/certs/rootCA.pem:ro
+      - ${DATA_DIR:?DATA_DIR not set}/plane:/app/data
+      - plane-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/api/instances/"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 180s
+    depends_on:
+      plane-init-postgres:
+        condition: service_completed_successfully
+      plane-init-rabbitmq:
+        condition: service_completed_successfully
+      plane-init-rustfs:
+        condition: service_completed_successfully
+      valkey:
+        condition: service_healthy
+      caddy:
+        condition: service_started
+
+volumes:
+  plane-logs:

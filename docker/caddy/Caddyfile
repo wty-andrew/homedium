@@ -52,6 +52,12 @@ valkey-admin.app.home.arpa {
 	reverse_proxy valkey-admin:8080
 }
 
+plane.app.home.arpa {
+	import tls
+	redir /god-mode /god-mode/
+	reverse_proxy plane-aio:80
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }

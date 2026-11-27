@@ -2,6 +2,7 @@ include:
   - caddy/compose.yaml
   - forgejo/compose.yaml
   - ntfy/compose.yaml
+  - plane/compose.yaml
   - postgres/compose.yaml
   - rabbitmq/compose.yaml
   - rustfs/compose.yaml

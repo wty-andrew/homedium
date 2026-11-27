@@ -11,6 +11,10 @@ services:
       - ./certs:/root/certs:ro
       - caddy-data:/data
       - caddy-config:/config
+    networks:
+      default:
+        aliases:
+          - s3.app.home.arpa # container can't resolve *.app.home.arpa, required for plane-aio
 
 volumes:
   caddy-data:
