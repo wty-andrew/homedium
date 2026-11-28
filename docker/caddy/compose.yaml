@@ -6,6 +6,8 @@ services:
       - "80:80"
       - "443:443"
       - "222:222" # forgejo
+      - "4317:4317" # clickstack otlp grpc
+      - "4318:4318" # clickstack otlp http
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./certs:/root/certs:ro

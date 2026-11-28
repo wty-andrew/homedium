@@ -1,6 +1,7 @@
 include:
   - arcane/compose.yaml
   - caddy/compose.yaml
+  - clickstack/compose.yaml
   - forgejo/compose.yaml
   - inventree/compose.yaml
   - ntfy/compose.yaml

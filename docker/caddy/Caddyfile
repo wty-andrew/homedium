@@ -5,6 +5,16 @@
 				proxy forgejo:22
 			}
 		}
+		:4317 {
+			route {
+				proxy clickstack:4317
+			}
+		}
+		:4318 {
+			route {
+				proxy clickstack:4318
+			}
+		}
 	}
 }
 
@@ -69,6 +79,11 @@ inventree.app.home.arpa {
 arcane.app.home.arpa {
 	import tls
 	reverse_proxy arcane:3552
+}
+
+clickstack.app.home.arpa {
+	import tls
+	reverse_proxy clickstack:8080
 }
 
 http://*.app.home.arpa {
