@@ -1,0 +1,115 @@
+x-inventree-env: &inventree-env
+  INVENTREE_SITE_URL: https://inventree.app.home.arpa
+
+  INVENTREE_DEBUG: "false"
+  INVENTREE_LOG_LEVEL: WARNING
+  INVENTREE_DB_LOGGING: "false"
+
+  INVENTREE_DB_ENGINE: postgresql
+  INVENTREE_DB_NAME: inventree
+  INVENTREE_DB_HOST: postgres
+  INVENTREE_DB_PORT: "5432"
+  INVENTREE_DB_USER: inventree
+  INVENTREE_DB_PASSWORD: ${INVENTREE_DB_PASSWORD:?INVENTREE_DB_PASSWORD not set}
+
+  INVENTREE_CACHE_ENABLED: "true"
+  INVENTREE_CACHE_HOST: valkey
+  INVENTREE_CACHE_PORT: "6379"
+  INVENTREE_CACHE_PASSWORD: ${VALKEY_PASSWORD:?VALKEY_PASSWORD not set}
+  INVENTREE_CACHE_DB: ${INVENTREE_CACHE_DB:?INVENTREE_CACHE_DB not set}
+
+  INVENTREE_PLUGINS_ENABLED: "true"
+  INVENTREE_AUTO_UPDATE: "true"
+  INVENTREE_EXT_VOLUME: ${INVENTREE_EXT_VOLUME:?INVENTREE_EXT_VOLUME not set}
+
+  INVENTREE_USE_X_FORWARDED_PROTO: "true"
+  INVENTREE_USE_X_FORWARDED_HOST: "true"
+  INVENTREE_SESSION_COOKIE_SECURE: "true"
+
+  INVENTREE_GUNICORN_WORKERS: "1"
+  INVENTREE_BACKGROUND_WORKERS: "1"
+  TZ: ${TZ:?TZ not set}
+
+services:
+  inventree-init-postgres:
+    image: postgres:18.7-alpine
+    restart: "no"
+    entrypoint: ["/bin/sh", "/init/postgres.sh"]
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD not set}
+      INVENTREE_DB_PASSWORD: ${INVENTREE_DB_PASSWORD:?INVENTREE_DB_PASSWORD not set}
+    volumes:
+      - ./init/postgres.sh:/init/postgres.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # upstream's manual install/upgrade step for doco-cd deployments
+  # https://docs.inventree.org/en/stable/start/docker_install/#update-database
+  inventree-update:
+    image: inventree/inventree:1.7.4
+    restart: "no"
+    command: invoke update --skip-backup
+    environment: *inventree-env
+    volumes:
+      - ${INVENTREE_EXT_VOLUME}:/home/inventree/data
+    depends_on:
+      inventree-init-postgres:
+        condition: service_completed_successfully
+      valkey:
+        condition: service_healthy
+
+  inventree-server:
+    image: inventree/inventree:1.7.4
+    restart: unless-stopped
+    environment: *inventree-env
+    volumes:
+      - ${INVENTREE_EXT_VOLUME}:/home/inventree/data
+    healthcheck:
+      test: ["CMD-SHELL", "invoke server-health --address http://localhost:8000"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 180s
+    depends_on:
+      inventree-update:
+        condition: service_completed_successfully
+
+  inventree-worker:
+    image: inventree/inventree:1.7.4
+    restart: unless-stopped
+    command: invoke worker
+    environment: *inventree-env
+    volumes:
+      - ${INVENTREE_EXT_VOLUME}:/home/inventree/data
+    healthcheck:
+      test: ["CMD-SHELL", "invoke worker-health"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
+    depends_on:
+      inventree-server:
+        condition: service_healthy
+
+  inventree-proxy:
+    image: caddy:2.11.9-alpine
+    restart: unless-stopped
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${INVENTREE_EXT_VOLUME}/static:/var/www/static:ro
+      - ${INVENTREE_EXT_VOLUME}/media:/var/www/media:ro
+      - ${INVENTREE_EXT_VOLUME}:/var/log
+      - ${INVENTREE_EXT_VOLUME}:/data
+      - ${INVENTREE_EXT_VOLUME}:/config
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:9090/api/system/health/"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    depends_on:
+      inventree-server:
+        condition: service_healthy

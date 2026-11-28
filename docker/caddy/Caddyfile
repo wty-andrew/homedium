@@ -58,6 +58,14 @@ plane.app.home.arpa {
 	reverse_proxy plane-aio:80
 }
 
+inventree.app.home.arpa {
+	import tls
+	request_body {
+		max_size 100MB
+	}
+	reverse_proxy inventree-proxy:80
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }

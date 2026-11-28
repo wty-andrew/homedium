@@ -1,6 +1,7 @@
 include:
   - caddy/compose.yaml
   - forgejo/compose.yaml
+  - inventree/compose.yaml
   - ntfy/compose.yaml
   - plane/compose.yaml
   - postgres/compose.yaml
