@@ -1,0 +1,23 @@
+services:
+  arcane:
+    image: ghcr.io/getarcaneapp/manager:v3.2.0
+    restart: unless-stopped
+    cgroup: host
+    environment:
+      ARCANE_APP_URL: https://arcane.app.home.arpa
+      PUID: ${HOST_UID:?HOST_UID not set}
+      PGID: ${HOST_GID:?HOST_GID not set}
+      ARCANE_ENCRYPTION_KEY: ${ARCANE_ENCRYPTION_KEY:?ARCANE_ENCRYPTION_KEY not set}
+      ARCANE_DEFAULT_ADMIN_USERNAME: ${ADMIN_USERNAME:?ADMIN_USERNAME not set}
+      ARCANE_DEFAULT_ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD not set}
+      ARCANE_TRUSTED_PROXIES: 172.16.0.0/12
+      TZ: ${TZ:?TZ not set}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DATA_DIR:?DATA_DIR not set}/arcane:/app/data
+    healthcheck:
+      test: ["CMD", "./arcane", "health", "--timeout", "2s"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s

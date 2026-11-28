@@ -66,6 +66,11 @@ inventree.app.home.arpa {
 	reverse_proxy inventree-proxy:80
 }
 
+arcane.app.home.arpa {
+	import tls
+	reverse_proxy arcane:3552
+}
+
 http://*.app.home.arpa {
 	redir https://{host}{uri} permanent
 }
